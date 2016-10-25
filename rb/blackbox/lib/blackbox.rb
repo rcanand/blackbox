@@ -4,6 +4,7 @@ class Blackbox
     attr_reader :dimension, :num_atoms, 
         :outer_dimension, :outer_grid_area, 
         :square_numbers_from_positions,
+        :positions_from_square_numbers,
         :min_inner_square, :max_inner_square,
         :atoms,
         :guesses
@@ -15,15 +16,20 @@ class Blackbox
         @dimension = dimension
         @outer_dimension = dimension + 2
         @outer_grid_area = @outer_dimension * @outer_dimension
+        @min_inner_square = @dimension*4 +1
+        @max_inner_square = @dimension*(4 + @dimension)
+
         @square_numbers_from_positions = {}
+        @positions_from_square_numbers = Hash.new {|hash, key| hash[key] = Array.new}
         @outer_dimension.times do |row|
             @outer_dimension.times do |column|
-                @square_numbers_from_positions[[row, column]] = get_square_number_from_position(row, column)
+                square = get_square_number_from_position(row, column)
+                @square_numbers_from_positions[[row, column]] = square
+                @positions_from_square_numbers[square] << [row, column]
             end
         end
 
-        @min_inner_square = @dimension*4 +1
-        @max_inner_square = @dimension*(4 + @dimension)
+        
 
         @num_atoms = num_atoms
         @atoms = []
@@ -98,6 +104,7 @@ class Blackbox
         raise ArgumentError.new("Invalid probe square") unless (1..(@min_inner_square-1)).include?(square)
     end
 
-
-
+    def get_positions_from_square_numbers(square)
+        @positions_from_square_numbers[square]
+    end
 end

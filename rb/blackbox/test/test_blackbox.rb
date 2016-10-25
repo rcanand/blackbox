@@ -301,4 +301,87 @@ class TestBlackbox < Minitest::Test
         assert_raises(ArgumentError){bb.probe(97)}        
         assert_raises(ArgumentError){bb.probe(100)}
     end
+
+    def test_positions_from_square_numbers
+        bb_1 = Blackbox.new(1, 0)
+        
+        # assert_equal(0, bb_1.get_square_number_from_position(0, 0))
+        # assert_equal(0, bb_1.get_square_number_from_position(0, 2))
+        # assert_equal(0, bb_1.get_square_number_from_position(2, 0))
+        # assert_equal(0, bb_1.get_square_number_from_position(2, 2))
+
+        assert_equal([[0,0], [0,2], [2,0], [2,2]], bb_1.get_positions_from_square_numbers(0))
+
+        # assert_equal(1, bb_1.get_square_number_from_position(0, 1))
+        assert_equal([[0,1]], bb_1.get_positions_from_square_numbers(1))
+        
+        # assert_equal(4, bb_1.get_square_number_from_position(1, 0))
+        assert_equal([[1,0]], bb_1.get_positions_from_square_numbers(4))
+
+        # assert_equal(5, bb_1.get_square_number_from_position(1, 1))
+        assert_equal([[1,1]], bb_1.get_positions_from_square_numbers(5))
+
+        # assert_equal(2, bb_1.get_square_number_from_position(1, 2))
+        assert_equal([[1,2]], bb_1.get_positions_from_square_numbers(2))
+        
+        # assert_equal(3, bb_1.get_square_number_from_position(2, 1))
+        assert_equal([[2,1]], bb_1.get_positions_from_square_numbers(3))
+        
+        bb_2 = Blackbox.new(2,0)
+
+        # assert_equal(0, bb_2.get_square_number_from_position(0, 0))
+        # assert_equal(0, bb_2.get_square_number_from_position(0, 3))
+        # assert_equal(0, bb_2.get_square_number_from_position(3, 0))
+        # assert_equal(0, bb_2.get_square_number_from_position(3, 3))
+        assert_equal([[0,0], [0,3], [3,0], [3,3]], bb_2.get_positions_from_square_numbers(0))
+
+        # assert_equal(1, bb_2.get_square_number_from_position(0, 1))
+        assert_equal([[0,1]], bb_2.get_positions_from_square_numbers(1))
+
+        # assert_equal(2, bb_2.get_square_number_from_position(0, 2))
+        assert_equal([[0,2]], bb_2.get_positions_from_square_numbers(2))
+        
+        # assert_equal(8, bb_2.get_square_number_from_position(1, 0))
+        assert_equal([[1,0]], bb_2.get_positions_from_square_numbers(8))
+
+        # assert_equal(9, bb_2.get_square_number_from_position(1, 1))
+        assert_equal([[1,1]], bb_2.get_positions_from_square_numbers(9))
+
+        # assert_equal(10, bb_2.get_square_number_from_position(1, 2))
+        assert_equal([[1,2]], bb_2.get_positions_from_square_numbers(10))
+
+        # assert_equal(3, bb_2.get_square_number_from_position(1, 3))
+        assert_equal([[1,3]], bb_2.get_positions_from_square_numbers(3))
+
+        # assert_equal(7, bb_2.get_square_number_from_position(2, 0))
+        assert_equal([[2,0]], bb_2.get_positions_from_square_numbers(7))
+
+        # assert_equal(11, bb_2.get_square_number_from_position(2, 1))
+        assert_equal([[2,1]], bb_2.get_positions_from_square_numbers(11))
+
+        # assert_equal(12, bb_2.get_square_number_from_position(2, 2))
+        assert_equal([[2,2]], bb_2.get_positions_from_square_numbers(12))
+
+        # assert_equal(4, bb_2.get_square_number_from_position(2, 3))                
+        assert_equal([[2,3]], bb_2.get_positions_from_square_numbers(4))
+        
+        # assert_equal(6, bb_2.get_square_number_from_position(3, 1))
+        assert_equal([[3,1]], bb_2.get_positions_from_square_numbers(6))
+
+        # assert_equal(5, bb_2.get_square_number_from_position(3, 2))
+        assert_equal([[3,2]], bb_2.get_positions_from_square_numbers(5))
+    end
+
+    def test_square_numbers_from_positions_hash
+        bb_1 = Blackbox.new(1, 0)
+        
+        (0..bb_1.max_inner_square).each do |square|
+            assert_equal(bb_1.get_positions_from_square_numbers(square), bb_1.positions_from_square_numbers[square])
+        end
+        
+        bb_2 = Blackbox.new(2,0)
+        (0..bb_2.max_inner_square).each do |square|
+            assert_equal(bb_2.get_positions_from_square_numbers(square), bb_2.positions_from_square_numbers[square])
+        end
+    end
 end
