@@ -102,6 +102,18 @@ class Blackbox
 
     def probe(square)
         raise ArgumentError.new("Invalid probe square") unless (1..(@min_inner_square-1)).include?(square)
+        positions = get_positions_from_square_numbers(square)
+        
+        row, column = positions.first
+        if(row == 0) 
+            @square_numbers_from_positions[[@outer_dimension - 1, column]]
+        elsif(row == @outer_dimension - 1) 
+            @square_numbers_from_positions[[0, column]]
+        elsif(column == 0)
+            @square_numbers_from_positions[[row, @outer_dimension - 1]]
+        elsif(column == @outer_dimension - 1)
+            @square_numbers_from_positions[[row, 0]]
+        end
     end
 
     def get_positions_from_square_numbers(square)

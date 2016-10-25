@@ -390,19 +390,19 @@ class TestBlackbox < Minitest::Test
         dims.each do |dimension|
             bb = Blackbox.new(dimension, 0)
             (1..(bb.min_inner_square - 1)).each do |square|
-                positions = get_positions_from_square_numbers(square)
+                positions = bb.get_positions_from_square_numbers(square)
                 assert_equal(1, positions.length)
                 row, column = positions.first
                 if(row == 0 ) 
-                    assert_equal(bb.square_numbers_from_positions[[@outer_dimension - 1, column]], 
+                    assert_equal(bb.square_numbers_from_positions[[bb.outer_dimension - 1, column]], 
                         bb.probe(square))
-                elsif(row == @outer_dimension - 1) 
+                elsif(row == bb.outer_dimension - 1) 
                     assert_equal(bb.square_numbers_from_positions[[0, column]], 
                         bb.probe(square))
                 elsif(column == 0)
-                    assert_equal(bb.square_numbers_from_positions[[row, @outer_dimension - 1]], 
+                    assert_equal(bb.square_numbers_from_positions[[row, bb.outer_dimension - 1]], 
                         bb.probe(square))
-                elsif(column == @outer_dimension - 1)
+                elsif(column == bb.outer_dimension - 1)
                     assert_equal(bb.square_numbers_from_positions[[row, 0]], 
                         bb.probe(square))    
                 end
