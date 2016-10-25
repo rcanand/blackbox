@@ -163,7 +163,7 @@ class TestBlackbox < Minitest::Test
     def test_draw_grid
         [1,2,3,4,5,8,10,12].each do |dimension|
             bb = Blackbox.new(dimension, 0)
-            bb.draw
+            bb.draw_grid
         end
     end
 
@@ -185,6 +185,18 @@ class TestBlackbox < Minitest::Test
             ([0, -1, -10] + [1,2,3, 10].map{|x| bb.max_inner_square + x}).each do |square|
                refute(bb.valid_move?(square))
             end 
+        end
+    end
+
+    def test_pick_guesses
+        PARAMETERS.each do |dimension, num_atoms|
+            bb = Blackbox.new(dimension,num_atoms)
+            assert_equal(num_atoms, bb.atoms.count)
+            assert_equal(bb.atoms.uniq, bb.atoms)
+            bb.atoms.each do |atom|
+                assert(atom >= bb.min_inner_square)
+                assert(atom <= bb.max_inner_square)
+            end
         end
     end
 end

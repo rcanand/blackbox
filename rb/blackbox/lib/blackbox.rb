@@ -43,7 +43,7 @@ class Blackbox
         end
     end
 
-    def draw
+    def draw_grid
         str = "\n\n"
         max_column_width = @max_inner_square.to_s.length + 2
         @outer_dimension.times do |row|
