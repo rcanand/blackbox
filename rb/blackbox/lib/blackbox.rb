@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby -wU
 require 'matrix'
 class Blackbox
-    attr_reader :dimension, :num_atoms, :outer_dimension, :outer_grid_area, :grid, :square_numbers_from_positions
+    attr_reader :dimension, :num_atoms, 
+        :outer_dimension, :outer_grid_area, 
+        :grid, :square_numbers_from_positions,
+        :min_inner_square, :max_inner_square
 
     def initialize dimension, num_atoms
         raise ArgumentError.new("dimension and num_atoms must be integers") unless dimension.instance_of?(Fixnum) && num_atoms.instance_of?(Fixnum)
@@ -16,6 +19,9 @@ class Blackbox
                 @square_numbers_from_positions[[row, column]] = get_square_number_from_position(row, column)
             end
         end
+
+        @min_inner_square = @dimension*4 +1
+        @max_inner_square = @dimension*(4 + @dimension)
 
         @num_atoms = num_atoms
     end

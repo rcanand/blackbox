@@ -166,4 +166,12 @@ class TestBlackbox < Minitest::Test
             bb.draw
         end
     end
+
+    def test_min_max_inner_grid_squares
+       [1,2,3,4,5,8,10,12, 20, 40, 49, 50].each do |dimension|
+            bb = Blackbox.new(dimension, 0)
+            assert_equal(bb.dimension*4 +1, bb.min_inner_square)
+            assert_equal(bb.dimension*(4 + bb.dimension) ,bb.max_inner_square)
+        end 
+    end
 end
