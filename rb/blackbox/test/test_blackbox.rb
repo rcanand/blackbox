@@ -159,4 +159,11 @@ class TestBlackbox < Minitest::Test
         assert_equal(bb_2.get_square_number_from_position(3,2), bb_2.square_numbers_from_positions[[3,2]])
         assert_equal(bb_2.get_square_number_from_position(3,3), bb_2.square_numbers_from_positions[[3,3]])
     end
+
+    def test_draw_grid
+        [1,2,3,4,5,8,10,12].each do |dimension|
+            bb = Blackbox.new(dimension, 0)
+            bb.draw
+        end
+    end
 end

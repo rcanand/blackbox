@@ -36,4 +36,17 @@ class Blackbox
             return (4 * @dimension + (row - 1) * @dimension + column)
         end
     end
+
+    def draw
+        str = "\n\n"
+        max_column_width = @outer_grid_area.to_s.length + 2
+        @outer_dimension.times do |row|
+            @outer_dimension.times do |column|
+                str += @square_numbers_from_positions[[row, column]].to_s.center(max_column_width)
+            end
+            str += "\n"
+        end 
+        str += "\n"
+        puts str
+    end
 end
