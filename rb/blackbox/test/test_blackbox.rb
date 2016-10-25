@@ -174,4 +174,17 @@ class TestBlackbox < Minitest::Test
             assert_equal(bb.dimension*(4 + bb.dimension) ,bb.max_inner_square)
         end 
     end
+
+    def test_first_move_squares
+        PARAMETERS.each do |dimension, num_atoms|
+            bb = Blackbox.new(dimension,num_atoms)
+            (1..bb.max_inner_square).each do |square|
+                assert(bb.valid_move?(square))
+            end
+
+            ([0, -1, -10] + [1,2,3, 10].map{|x| bb.max_inner_square + x}).each do |square|
+               refute(bb.valid_move?(square))
+            end 
+        end
+    end
 end

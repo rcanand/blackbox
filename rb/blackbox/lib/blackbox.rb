@@ -45,7 +45,7 @@ class Blackbox
 
     def draw
         str = "\n\n"
-        max_column_width = @outer_grid_area.to_s.length + 2
+        max_column_width = @max_inner_square.to_s.length + 2
         @outer_dimension.times do |row|
             @outer_dimension.times do |column|
                 str += @square_numbers_from_positions[[row, column]].to_s.center(max_column_width)
@@ -54,5 +54,9 @@ class Blackbox
         end 
         str += "\n"
         puts str
+    end
+
+    def valid_move?(square)
+        (1..@max_inner_square).include?(square)
     end
 end
