@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby -wU
-require 'matrix'
+require 'set'
 class Blackbox
     attr_reader :dimension, :num_atoms, 
         :outer_dimension, :outer_grid_area, 
-        :grid, :square_numbers_from_positions,
-        :min_inner_square, :max_inner_square
+        :square_numbers_from_positions,
+        :min_inner_square, :max_inner_square,
+        :atoms,
+        :guesses
 
     def initialize dimension, num_atoms
         raise ArgumentError.new("dimension and num_atoms must be integers") unless dimension.instance_of?(Fixnum) && num_atoms.instance_of?(Fixnum)
@@ -24,6 +26,19 @@ class Blackbox
         @max_inner_square = @dimension*(4 + @dimension)
 
         @num_atoms = num_atoms
+        @atoms = []
+        @num_atoms.times do 
+            atom = @min_inner_square + rand(@dimension * @dimension)
+            while(@atoms.include?(atom))
+                atom = @min_inner_square + rand(@dimension * @dimension)
+            end
+            @atoms << atom
+        end
+
+        @guesses = Set.new
+
+        # @probe_map = {}
+        # build_probe_map
     end
 
     def get_square_number_from_position row, column
@@ -59,4 +74,30 @@ class Blackbox
     def valid_move?(square)
         (1..@max_inner_square).include?(square)
     end
+
+    def inner_square?(square)
+        (@min_inner_square..@max_inner_square).include?(square)
+    end
+
+    def edge_square?(square)
+        (1..(@min_inner_square - 1)).include?(square)
+    end  
+
+    def toggle_guess(square)
+        raise ArgumentError.new("Invalid guess square") unless (@min_inner_square..@max_inner_square).include?(square)
+        if(@guesses.include?(square))
+            @guesses.delete(square)
+        else
+            @guesses << square
+        end
+    end   
+
+
+
+    def probe(square)
+        raise ArgumentError.new("Invalid probe square") unless (1..(@min_inner_square-1)).include?(square)
+    end
+
+
+
 end

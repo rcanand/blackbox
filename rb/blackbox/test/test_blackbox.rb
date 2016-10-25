@@ -175,7 +175,7 @@ class TestBlackbox < Minitest::Test
         end 
     end
 
-    def test_first_move_squares
+    def test_first_move_squares_validity
         PARAMETERS.each do |dimension, num_atoms|
             bb = Blackbox.new(dimension,num_atoms)
             (1..bb.max_inner_square).each do |square|
@@ -198,5 +198,107 @@ class TestBlackbox < Minitest::Test
                 assert(atom <= bb.max_inner_square)
             end
         end
+    end
+
+    def test_check_inner_square?
+        PARAMETERS.each do |dimension, num_atoms|
+            bb = Blackbox.new(dimension,num_atoms)
+            10.times do 
+                random_square = -1*(rand(3) + 1) * rand(bb.max_inner_square * 2)
+                if((bb.min_inner_square..bb.max_inner_square).include?random_square)
+                    assert(bb.inner_square?(random_square))
+                else
+                    refute(bb.inner_square?(random_square))
+                end
+            end
+        end        
+    end
+
+    def test_check_edge_square?
+        PARAMETERS.each do |dimension, num_atoms|
+            bb = Blackbox.new(dimension,num_atoms)
+            10.times do 
+                random_square = -1*(rand(3) + 1) * rand(bb.max_inner_square * 2)
+                if((1..(bb.min_inner_square - 1)).include?(random_square))
+                    assert(bb.edge_square?(random_square))
+                else
+                    refute(bb.edge_square?(random_square))
+                end
+            end
+        end        
+    end
+
+    def test_guess_validity
+        bb = Blackbox.new(8,3)
+        assert_raises(ArgumentError){bb.toggle_guess(-10)}
+        assert_raises(ArgumentError){bb.toggle_guess(-1)}
+        assert_raises(ArgumentError){bb.toggle_guess(0)}
+        assert_raises(ArgumentError){bb.toggle_guess(1)}
+        assert_raises(ArgumentError){bb.toggle_guess(2)}
+        assert_raises(ArgumentError){bb.toggle_guess(5)}
+        assert_raises(ArgumentError){bb.toggle_guess(8)}
+        assert_raises(ArgumentError){bb.toggle_guess(9)}
+        assert_raises(ArgumentError){bb.toggle_guess(10)}
+        assert_raises(ArgumentError){bb.toggle_guess(13)}
+        assert_raises(ArgumentError){bb.toggle_guess(16)}
+        assert_raises(ArgumentError){bb.toggle_guess(20)}
+        assert_raises(ArgumentError){bb.toggle_guess(24)}
+        assert_raises(ArgumentError){bb.toggle_guess(28)}
+        assert_raises(ArgumentError){bb.toggle_guess(32)}
+
+        bb.toggle_guess(33)
+        bb.toggle_guess(40)
+        bb.toggle_guess(50)
+        bb.toggle_guess(96)
+
+        assert_raises(ArgumentError){bb.toggle_guess(97)}        
+        assert_raises(ArgumentError){bb.toggle_guess(100)}
+    end
+
+    def test_guess_toggle
+        bb = Blackbox.new(8,3)
+        assert_empty(bb.guesses)
+        bb.toggle_guess(33)
+        assert_equal(1, bb.guesses.length)
+        assert_includes(bb.guesses, 33)
+
+        bb.toggle_guess(33)
+        assert_empty(bb.guesses)
+
+        bb.toggle_guess(33)
+        assert_equal(1, bb.guesses.length)
+        assert_includes(bb.guesses, 33)
+
+        bb.toggle_guess(45)
+        assert_equal(2, bb.guesses.length)
+        assert_includes(bb.guesses, 33)
+        assert_includes(bb.guesses, 45)                
+    end
+
+    def test_probe_validity
+        bb = Blackbox.new(8,3)
+        assert_raises(ArgumentError){bb.probe(-10)}
+        assert_raises(ArgumentError){bb.probe(-1)}
+        assert_raises(ArgumentError){bb.probe(0)}
+        bb.probe(1)
+        bb.probe(2)
+        bb.probe(5)
+        bb.probe(8)
+        bb.probe(9)
+        bb.probe(10)
+        bb.probe(13)
+        bb.probe(16)
+        bb.probe(20)
+        bb.probe(24)
+        bb.probe(28)
+        bb.probe(32)
+
+        assert_raises(ArgumentError){bb.probe(33)}
+        assert_raises(ArgumentError){bb.probe(40)}
+        assert_raises(ArgumentError){bb.probe(50)}
+        assert_raises(ArgumentError){bb.probe(96)}
+
+        assert_raises(ArgumentError){bb.probe(97)}        
+        assert_raises(ArgumentError){bb.probe(100)}
     end
 end
