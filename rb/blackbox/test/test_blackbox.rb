@@ -1,4 +1,4 @@
-# require 'byebug'
+require 'byebug'
 require 'minitest/autorun'
 require 'minitest/pride'
 require_relative '../lib/blackbox.rb'
@@ -111,7 +111,6 @@ class TestBlackbox < Minitest::Test
         bb_2 = Blackbox.new(2,0)
         assert_equal(0, bb_2.get_square_number_from_position(0, 0))
         assert_equal(1, bb_2.get_square_number_from_position(0, 1))
-        # byebug
         assert_equal(2, bb_2.get_square_number_from_position(0, 2))
         assert_equal(0, bb_2.get_square_number_from_position(0, 3))
         assert_equal(8, bb_2.get_square_number_from_position(1, 0))
@@ -192,7 +191,6 @@ class TestBlackbox < Minitest::Test
         PARAMETERS.each do |dimension, num_atoms|
             bb = Blackbox.new(dimension,num_atoms)
             assert_equal(num_atoms, bb.atoms.count)
-            assert_equal(bb.atoms.uniq, bb.atoms)
             bb.atoms.each do |atom|
                 assert(atom >= bb.min_inner_square)
                 assert(atom <= bb.max_inner_square)
@@ -385,6 +383,23 @@ class TestBlackbox < Minitest::Test
         end
     end
 
+    def test_check_pass_through_square_no_atoms
+        dims = [1,2,3,4,5,8,10,20,50]
+        dims.each do |dimension|
+            bb = Blackbox.new(dimension, 0)
+            assert_raises(ArgumentError){bb.pass_through?(-10)}
+            assert_raises(ArgumentError){bb.pass_through?(-1)}
+            assert_raises(ArgumentError){bb.pass_through?(0)}
+            assert_raises(ArgumentError){bb.pass_through?(bb.min_inner_square)}
+            assert_raises(ArgumentError){bb.pass_through?(bb.min_inner_square + 1)}
+            assert_raises(ArgumentError){bb.pass_through?(bb.min_inner_square + 10)}
+            
+            (1..(bb.min_inner_square - 1)).each do |square|
+                assert(bb.pass_through?(square))
+            end
+        end
+    end
+
     def test_probe_no_atoms
         dims = [1,2,3,4,5,8,10,20,50]
         dims.each do |dimension|
@@ -408,5 +423,110 @@ class TestBlackbox < Minitest::Test
                 end
             end
         end
+    end
+
+    def test_probe_1_0
+        # dim = 1, atoms = 0
+        bb = Blackbox.new(1,0)
+        assert_equal(3, bb.probe(1));
+        assert_equal(4, bb.probe(2));
+        assert_equal(1, bb.probe(3));
+        assert_equal(2, bb.probe(4));
+    end
+
+    def test_set_atoms
+        bb = Blackbox.new(1,0)
+        assert_equal(bb.num_atoms, 0)
+        assert_empty(bb.atoms)
+
+        assert_raises(ArgumentError){bb.set_atoms(-10)}
+        assert_raises(ArgumentError){bb.set_atoms(-1)}
+        assert_raises(ArgumentError){bb.set_atoms(0)}
+        assert_raises(ArgumentError){bb.set_atoms(1)}
+        assert_raises(ArgumentError){bb.set_atoms(2)}
+        assert_raises(ArgumentError){bb.set_atoms(3)}
+        assert_raises(ArgumentError){bb.set_atoms(4)}
+        bb.set_atoms(5)
+        assert_equal(1, bb.num_atoms)
+        assert_includes(bb.atoms, 5)
+        bb.set_atoms(5)
+        assert_equal(1, bb.num_atoms)
+        assert_includes(bb.atoms, 5)
+        bb.set_atoms(5,5,5)
+        assert_equal(1, bb.num_atoms)
+        assert_includes(bb.atoms, 5)
+        assert_raises(ArgumentError){bb.set_atoms(5,6)}
+        assert_equal(1, bb.num_atoms)
+        assert_includes(bb.atoms, 5)
+        refute_includes(bb.atoms, 6)
+        assert_raises(ArgumentError){bb.set_atoms(6)}
+        assert_raises(ArgumentError){bb.set_atoms(7)}
+        assert_raises(ArgumentError){bb.set_atoms(10)}
+        bb.set_atoms
+        assert_equal(0, bb.num_atoms)
+        assert_empty(bb.atoms)
+
+        bb = Blackbox.new(8,3)
+        assert_equal(bb.num_atoms, 3)
+        assert_raises(ArgumentError){bb.set_atoms(-10)}
+        assert_raises(ArgumentError){bb.set_atoms(-1)}
+        assert_raises(ArgumentError){bb.set_atoms(0)}
+        assert_raises(ArgumentError){bb.set_atoms(1)}
+        assert_raises(ArgumentError){bb.set_atoms(2)}
+        assert_raises(ArgumentError){bb.set_atoms(7)}
+        assert_raises(ArgumentError){bb.set_atoms(8)}
+        assert_raises(ArgumentError){bb.set_atoms(9)}
+        assert_raises(ArgumentError){bb.set_atoms(10)}
+        assert_raises(ArgumentError){bb.set_atoms(15)}
+        assert_raises(ArgumentError){bb.set_atoms(16)}
+        assert_raises(ArgumentError){bb.set_atoms(17)}
+        assert_raises(ArgumentError){bb.set_atoms(18)}
+        assert_raises(ArgumentError){bb.set_atoms(23)}
+        assert_raises(ArgumentError){bb.set_atoms(24)}
+        assert_raises(ArgumentError){bb.set_atoms(25)}
+        assert_raises(ArgumentError){bb.set_atoms(26)}
+        assert_raises(ArgumentError){bb.set_atoms(31)}
+        assert_raises(ArgumentError){bb.set_atoms(32)}
+
+        bb.set_atoms(33)
+        assert_equal(1, bb.num_atoms)
+        assert_includes(bb.atoms, 33)
+        bb.set_atoms(33)
+        assert_equal(1, bb.num_atoms)
+        assert_includes(bb.atoms, 33)
+        bb.set_atoms(33,33,33)
+        assert_equal(1, bb.num_atoms)
+        assert_includes(bb.atoms, 33)
+        assert_raises(ArgumentError){bb.set_atoms(32,33)}
+        assert_equal(1, bb.num_atoms)
+        assert_includes(bb.atoms, 33)
+        refute_includes(bb.atoms, 32)
+        assert_raises(ArgumentError){bb.set_atoms(97)}
+        assert_raises(ArgumentError){bb.set_atoms(100)}
+        bb.set_atoms(35,45,85)
+        assert_equal(3, bb.num_atoms)
+        refute_includes(bb.atoms, 33)
+        assert_includes(bb.atoms, 35)
+        assert_includes(bb.atoms, 45)
+        assert_includes(bb.atoms, 85)
+    end
+
+
+    def test_check_pass_through_1_1
+        bb = Blackbox.new(1,1)
+        refute(bb.pass_through?(1))
+        refute(bb.pass_through?(2))
+        refute(bb.pass_through?(3))
+        refute(bb.pass_through?(4))
+    end
+
+    def test_probe_1_1
+        skip
+        # dim = 1, atoms = 1
+        bb = Blackbox.new(1,1)
+        assert_equal(:hit, bb.probe(1));
+        assert_equal(:hit, bb.probe(2));
+        assert_equal(:hit, bb.probe(3));
+        assert_equal(:hit, bb.probe(4));        
     end
 end

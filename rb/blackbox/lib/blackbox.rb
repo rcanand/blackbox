@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby -wU
+require 'byebug'
 require 'set'
+
 class Blackbox
     attr_reader :dimension, :num_atoms, 
         :outer_dimension, :outer_grid_area, 
@@ -32,7 +34,7 @@ class Blackbox
         
 
         @num_atoms = num_atoms
-        @atoms = []
+        @atoms = Set.new
         @num_atoms.times do 
             atom = @min_inner_square + rand(@dimension * @dimension)
             while(@atoms.include?(atom))
@@ -98,25 +100,41 @@ class Blackbox
         end
     end   
 
-
-
-    def probe(square)
-        raise ArgumentError.new("Invalid probe square") unless (1..(@min_inner_square-1)).include?(square)
-        positions = get_positions_from_square_numbers(square)
-        
-        row, column = positions.first
-        if(row == 0) 
-            @square_numbers_from_positions[[@outer_dimension - 1, column]]
-        elsif(row == @outer_dimension - 1) 
-            @square_numbers_from_positions[[0, column]]
-        elsif(column == 0)
-            @square_numbers_from_positions[[row, @outer_dimension - 1]]
-        elsif(column == @outer_dimension - 1)
-            @square_numbers_from_positions[[row, 0]]
+    def pass_through?(edge_square)
+        raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
+        if(@num_atoms == 0)
+            return true
         end
+        false
+    end
+
+
+    def probe(edge_square)
+        raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
+        positions = get_positions_from_square_numbers(edge_square)
+        row, column = positions.first
+        if(pass_through?(edge_square))
+            if(row == 0) 
+                @square_numbers_from_positions[[@outer_dimension - 1, column]]
+            elsif(row == @outer_dimension - 1) 
+                @square_numbers_from_positions[[0, column]]
+            elsif(column == 0)
+                @square_numbers_from_positions[[row, @outer_dimension - 1]]
+            elsif(column == @outer_dimension - 1)
+                @square_numbers_from_positions[[row, 0]]
+            end
+        end 
     end
 
     def get_positions_from_square_numbers(square)
         @positions_from_square_numbers[square]
+    end
+
+    def set_atoms *squares
+        squares.each do |square|
+            raise ArgumentError.new("#{square} is not an inner square") unless inner_square?(square)
+        end
+        @atoms = squares.to_set
+        @num_atoms = @atoms.length
     end
 end
