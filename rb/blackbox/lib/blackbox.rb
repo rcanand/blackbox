@@ -124,6 +124,14 @@ class Blackbox
             raise ArgumentError.new("#{square1} and #{square2} are not in the same row or column") 
         end
 
+        if((row1 == row2 && row1 == 0) ||
+            (row1 == row2 && row1 == @outer_dimension - 1) ||
+            (column1 == column2 && column1 == 0) ||
+            (column1 == column2 && column1 == @outer_dimension - 1)
+            )
+            raise ArgumentError.new("#{square1} and #{square2} are on the same edge")  
+        end
+
         min_row = [row1, row2].min
         max_row = [row1, row2].max
         row_range = (min_row..max_row)

@@ -513,6 +513,19 @@ class TestBlackbox < Minitest::Test
         assert_includes(bb.atoms, 85)
     end
 
+    def test_any_atom_between
+        bb = Blackbox.new(8,3)
+        assert_raises(ArgumentError) {bb.any_atom_between?(1,9)} 
+        assert_raises(ArgumentError) {bb.any_atom_between?(1,2)} 
+    end
+
+    def test_hit_check
+        bb = Blackbox.new(1,0)
+        refute(bb.hit?(1))
+        refute(bb.hit?(2))
+        refute(bb.hit?(3))
+        refute(bb.hit?(4))
+    end
 
     def test_check_pass_through_1_1
         bb = Blackbox.new(1,1)
