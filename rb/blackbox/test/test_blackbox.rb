@@ -678,4 +678,43 @@ class TestBlackbox < Minitest::Test
         assert_equal(9, bb.probe(32))
     end
 
+    def test_get_square_string_plain_squares
+        bb = Blackbox.new(1,0)
+        assert_equal("1", bb.get_square_string(1))
+        assert_equal("2", bb.get_square_string(2))
+        assert_equal("3", bb.get_square_string(3))
+        assert_equal("4", bb.get_square_string(4))
+        assert_equal("5", bb.get_square_string(5))
+    end
+
+    def test_get_square_string_with_guesses
+        bb = Blackbox.new(8,3)
+        assert_equal("4", bb.get_square_string(4))
+        assert_equal("34", bb.get_square_string(34))
+        assert_equal("33", bb.get_square_string(33))
+        bb.toggle_guess(33)
+        assert_equal("33G", bb.get_square_string(33))
+        bb.toggle_guess(33)
+        assert_equal("33", bb.get_square_string(33))
+    end
+
+    def test_probes_save
+        bb = Blackbox.new(8,3)
+        assert_empty(bb.probes)
+        bb.probe(1)
+        assert_equal(1, bb.probes.length)
+        bb.probe(2)
+        assert_equal(2, bb.probes.length)
+        bb.probe(1)
+        assert_equal(2, bb.probes.length)
+    end
+
+    def test_probe_map
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+
+        (1..bb.min_inner_square - 1).each do |square|
+            assert_equal(bb.probe(square), bb.probe_map[square], "Mismatch for square #{square}")
+        end    
+    end
 end

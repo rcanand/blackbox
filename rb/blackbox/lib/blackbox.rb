@@ -8,7 +8,9 @@ class Blackbox
         :positions_from_square_numbers,
         :min_inner_square, :max_inner_square,
         :atoms,
-        :guesses
+        :guesses,
+        :probes, 
+        :probe_map
 
     def initialize dimension, num_atoms
         raise ArgumentError.new("dimension and num_atoms must be integers") unless dimension.instance_of?(Fixnum) && num_atoms.instance_of?(Fixnum)
@@ -43,9 +45,9 @@ class Blackbox
         end
 
         @guesses = Set.new
-
-        # @probe_map = {}
-        # build_probe_map
+        @probes = Set.new
+        @probe_map = {}
+        build_probe_map
     end
 
     def get_square_number_from_position row, column
@@ -63,6 +65,14 @@ class Blackbox
         else # inner square
             return (4 * @dimension + (row - 1) * @dimension + column)
         end
+    end
+
+    def get_square_string square
+        if(@guesses.include?(square))
+            return "#{square}G"
+        end
+
+        return square.to_s
     end
 
     def draw_grid
@@ -157,17 +167,6 @@ class Blackbox
         facing_edge_square = get_facing_edge_square(edge_square)
         any_atom_between?(edge_square, facing_edge_square)
     end
-
-    # def probe(edge_square)
-    #     raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
-    #     probe_path = get_probe_path(edge_square)
-
-    #     if(pass_through?(edge_square))
-    #         return get_facing_edge_square(edge_square)
-    #     elsif hit?(edge_square)
-    #         return :hit
-    #     end 
-    # end
 
     def get_edge_direction edge_square
         raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
@@ -379,8 +378,12 @@ class Blackbox
 
 
 
-    def probe(start)
+    def probe(start, record = true)
         raise ArgumentError.new("#{start} is not an edge square") unless edge_square?(start)
+        if record
+            @probes << start
+        end
+        
         direction = get_edge_direction(start)
         current = start
         next_step = step(start, current, direction)
@@ -417,6 +420,8 @@ class Blackbox
         end
         @atoms = squares.to_set
         @num_atoms = @atoms.length
+        @probes = Set.new
+        build_probe_map
     end
 
     private
@@ -433,6 +438,12 @@ class Blackbox
             @square_numbers_from_positions[[row, @outer_dimension - 1]]
         elsif(column == @outer_dimension - 1)
             @square_numbers_from_positions[[row, 0]]
+        end
+    end
+
+    def build_probe_map
+        (1..@min_inner_square - 1).each do |square|
+            @probe_map[square] = probe(square, false)
         end
     end
 end
