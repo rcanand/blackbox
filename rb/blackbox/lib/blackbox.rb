@@ -10,7 +10,8 @@ class Blackbox
         :atoms,
         :guesses,
         :probes, 
-        :probe_map
+        :probe_map,
+        :toggle_guess_count
 
     def initialize dimension, num_atoms
         raise ArgumentError.new("dimension and num_atoms must be integers") unless dimension.instance_of?(Fixnum) && num_atoms.instance_of?(Fixnum)
@@ -48,6 +49,8 @@ class Blackbox
         @probes = Set.new
         @probe_map = {}
         build_probe_map
+
+        @toggle_guess_count = 0
     end
 
     def get_square_number_from_position row, column
@@ -110,11 +113,14 @@ class Blackbox
 
     def toggle_guess(square)
         raise ArgumentError.new("Invalid guess square") unless (@min_inner_square..@max_inner_square).include?(square)
+
         if(@guesses.include?(square))
             @guesses.delete(square)
         else
             @guesses << square
         end
+
+        @toggle_guess_count += 1
     end   
 
     def pass_through?(edge_square)
