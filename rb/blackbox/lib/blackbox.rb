@@ -432,6 +432,10 @@ class Blackbox
         build_probe_map
     end
 
+    def game_over?
+        @atoms == @guesses
+    end
+
     private
 
     def get_facing_edge_square edge_square

@@ -693,7 +693,7 @@ class TestBlackbox < Minitest::Test
         assert_equal("34", bb.get_square_string(34))
         assert_equal("33", bb.get_square_string(33))
         bb.toggle_guess(33)
-        assert_equal("33G", bb.get_square_string(33))
+        assert_equal("(33G)", bb.get_square_string(33))
         bb.toggle_guess(33)
         assert_equal("33", bb.get_square_string(33))
     end
@@ -722,8 +722,8 @@ class TestBlackbox < Minitest::Test
         bb = Blackbox.new(8,0)
         bb.set_atoms(50, 55, 76, 95)
         bb.probe(1)
-        assert_equal("1.31", bb.get_square_string(1))
-        assert_equal("31.1", bb.get_square_string(31))
+        assert_equal("(1.31)", bb.get_square_string(1))
+        assert_equal("(31.1)", bb.get_square_string(31))
     end
 
     def test_draw_grid_with_guesses_and_probes
@@ -760,5 +760,19 @@ class TestBlackbox < Minitest::Test
         puts "Unguessing 33"
         bb.toggle_guess(33)
         bb.draw_grid
+    end
+
+    def test_game_over_check
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+        refute(bb.game_over?)
+        bb.toggle_guess(50)
+        refute(bb.game_over?)
+        bb.toggle_guess(55)
+        refute(bb.game_over?)
+        bb.toggle_guess(76)
+        refute(bb.game_over?)
+        bb.toggle_guess(95)
+        assert(bb.game_over?)
     end
 end
