@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby -wU
 require 'byebug'
 require 'set'
 
@@ -159,16 +158,16 @@ class Blackbox
         any_atom_between?(edge_square, facing_edge_square)
     end
 
-    def probe(edge_square)
-        raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
-        probe_path = get_probe_path(edge_square)
+    # def probe(edge_square)
+    #     raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
+    #     probe_path = get_probe_path(edge_square)
 
-        if(pass_through?(edge_square))
-            return get_facing_edge_square(edge_square)
-        elsif hit?(edge_square)
-            return :hit
-        end 
-    end
+    #     if(pass_through?(edge_square))
+    #         return get_facing_edge_square(edge_square)
+    #     elsif hit?(edge_square)
+    #         return :hit
+    #     end 
+    # end
 
     def get_edge_direction edge_square
         raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
@@ -184,6 +183,40 @@ class Blackbox
             return :left
         end
         raise ArgumentError.new("Should never reach here")
+    end
+
+    def get_front_square(square, direction)
+        raise ArgumentError.new("#{square} is not a valid square") unless (edge_square?(square) || inner_square?(square))
+        positions = get_positions_from_square_numbers(square)
+        row, column = positions.first
+        case direction
+        when :up
+            if(row == 0)
+                raise ArgumentError.new("Attempting to move out of bounds in up direction")
+            else
+                return @square_numbers_from_positions[[row - 1, column]]
+            end
+        when :down
+            if(row == @outer_dimension - 1)
+                raise ArgumentError.new("Attempting to move out of bounds in down direction")
+            else
+                return @square_numbers_from_positions[[row + 1, column]]
+            end
+        when :left
+            if(column == 0)
+                raise ArgumentError.new("Attempting to move out of bounds in left direction")
+            else
+                return @square_numbers_from_positions[[row, column - 1]]
+            end
+        when :right
+            if(column == @outer_dimension - 1)
+                raise ArgumentError.new("Attempting to move out of bounds in right direction")
+            else
+                return @square_numbers_from_positions[[row, column + 1]]
+            end
+        else
+            raise RuntimeError.new("Should never land here!")
+        end
     end
 
     def get_front_left_square(square, direction)
@@ -213,7 +246,7 @@ class Blackbox
             end
             return @square_numbers_from_positions[[row - 1, column + 1]]
         else
-            raise RuntimeError("Should never land here!")
+            raise RuntimeError.new("Should never land here!")
         end
     end
 
@@ -244,7 +277,7 @@ class Blackbox
             end
             return @square_numbers_from_positions[[row + 1, column + 1]]
         else
-            raise RuntimeError("Should never land here!")
+            raise RuntimeError.new("Should never land here!")
         end
     end
 
@@ -292,40 +325,6 @@ class Blackbox
             raise ArgumentError.new("Invalid direction")
         end
     end    
-
-    def get_front_square(square, direction)
-        raise ArgumentError.new("#{square} is not a valid square") unless (edge_square?(square) || inner_square?(square))
-        positions = get_positions_from_square_numbers(square)
-        row, column = positions.first
-        case direction
-        when :up
-            if(row == 0)
-                raise ArgumentError("Attempting to move out of bounds in up direction")
-            else
-                return @square_numbers_from_positions[[row - 1, column]]
-            end
-        when :down
-            if(row == @outer_dimension - 1)
-                raise ArgumentError("Attempting to move out of bounds in down direction")
-            else
-                return @square_numbers_from_positions[[row + 1, column]]
-            end
-        when :left
-            if(column == 0)
-                raise ArgumentError("Attempting to move out of bounds in left direction")
-            else
-                return @square_numbers_from_positions[[row, column - 1]]
-            end
-        when :right
-            if(column == @outer_dimension - 1)
-                raise ArgumentError("Attempting to move out of bounds in right direction")
-            else
-                return @square_numbers_from_positions[[row, column + 1]]
-            end
-        else
-            raise RuntimeError("Should never land here!")
-        end
-    end
 
     def step(start, current, direction)
         raise ArgumentError.new("#{start} is not an edge square") unless edge_square?(start) 

@@ -563,4 +563,119 @@ class TestBlackbox < Minitest::Test
         assert_equal(:reflection, bb.probe(7));
         assert_equal(:hit, bb.probe(8));
     end
+
+    def test_wiki_scenario_1_hit
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample2.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+        assert_equal(:hit, bb.probe(14))
+    end
+
+    def test_wiki_scenario_2_deflection
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample3.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+        assert_equal(5, bb.probe(13))
+    end
+
+    def test_wiki_scenario_3_edge_reflection_hit
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample4.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+        assert_equal(:reflection, bb.probe(17))
+        assert_equal(:hit, bb.probe(18))
+        assert_equal(:reflection, bb.probe(19))
+    end
+
+    def test_wiki_scenario_4_double_deflection_reflection
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample5.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(76, 78)
+        assert_equal(:reflection, bb.probe(5))
+    end
+
+    def test_wiki_scenario_5_miss
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample6.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+        assert_equal(32, bb.probe(9))
+    end
+
+    def test_wiki_scenario_6_detour
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample7.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+        assert_equal(3, bb.probe(6))
+        assert_equal(6, bb.probe(3))
+        assert_equal(12, bb.probe(15))
+        assert_equal(15, bb.probe(12))
+    end
+
+    def test_wiki_scenario_7_twisted_detour
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample8.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+        assert_equal(28, bb.probe(20))
+    end
+
+    def test_wiki_scenario_8_simple_equivalent_of_last_scenario
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample9.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(62)
+        assert_equal(28, bb.probe(20))
+    end
+
+    def test_wiki_scenario_9_complex_reflection
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample10.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(46, 86, 88)
+        assert_equal(:reflection, bb.probe(11))
+    end    
+
+    def test_wiki_scenario_10_complex_hit
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample11.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(46, 51, 86)
+        assert_equal(:hit, bb.probe(27))
+    end    
+
+    def test_wiki_scenario_11_full_probe
+        # https://en.wikipedia.org/wiki/File:BlackBoxSample12.svg
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+
+        assert_equal(31, bb.probe(1))
+        assert_equal(:hit, bb.probe(2))
+        assert_equal(6, bb.probe(3))
+        assert_equal(:hit, bb.probe(4))
+        assert_equal(13, bb.probe(5))
+        assert_equal(3, bb.probe(6))
+        assert_equal(:hit, bb.probe(7))
+        assert_equal(10, bb.probe(8))
+        assert_equal(32, bb.probe(9))
+        assert_equal(8, bb.probe(10))
+        assert_equal(:hit, bb.probe(11))
+        assert_equal(15, bb.probe(12))
+        assert_equal(5, bb.probe(13))
+        assert_equal(:hit, bb.probe(14))
+        assert_equal(12, bb.probe(15))
+        assert_equal(:hit, bb.probe(16))
+        assert_equal(:reflection, bb.probe(17))
+        assert_equal(:hit, bb.probe(18))
+        assert_equal(:reflection, bb.probe(19))
+        assert_equal(28, bb.probe(20))
+        assert_equal(:hit, bb.probe(21))
+        assert_equal(26, bb.probe(22))
+        assert_equal(:hit, bb.probe(23))
+        assert_equal(29, bb.probe(24))
+        assert_equal(:hit, bb.probe(25))
+        assert_equal(22, bb.probe(26))
+        assert_equal(:hit, bb.probe(27))
+        assert_equal(20, bb.probe(28))
+        assert_equal(24, bb.probe(29))
+        assert_equal(:hit, bb.probe(30))
+        assert_equal(1, bb.probe(31))
+        assert_equal(9, bb.probe(32))
+    end
+
 end
