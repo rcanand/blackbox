@@ -442,6 +442,20 @@ class Blackbox
         @atoms == @guesses
     end
 
+    def draw_move
+        if(game_over?)
+            puts "Congratulations! Game Over."
+            puts 
+        end
+        puts "Game with #{@dimension} x #{@dimension} grid, and #{num_atoms} hidden atoms"
+        puts 
+        puts "Guesses on board: #{@guesses.count}"
+        puts "Guesses made so far: #{@toggle_guess_count}"
+        puts "Moves made so far: #{@probes.count}"
+        puts 
+        draw_grid
+    end
+
     private
 
     def get_facing_edge_square edge_square

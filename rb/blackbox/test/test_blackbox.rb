@@ -794,4 +794,24 @@ class TestBlackbox < Minitest::Test
         bb.toggle_guess(95)
         assert_equal(4, bb.toggle_guess_count) 
     end 
+
+    def test_draw_move
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+
+        bb.draw_move
+
+        bb.toggle_guess(50)
+        bb.draw_move
+
+        bb.toggle_guess(55)
+        bb.draw_move
+
+        bb.toggle_guess(76)
+        bb.draw_move
+
+        bb.toggle_guess(95)
+        assert(bb.game_over?)
+        bb.draw_move
+    end
 end
