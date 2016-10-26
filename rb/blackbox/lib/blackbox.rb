@@ -161,13 +161,252 @@ class Blackbox
 
     def probe(edge_square)
         raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
-        
+        probe_path = get_probe_path(edge_square)
+
         if(pass_through?(edge_square))
             return get_facing_edge_square(edge_square)
         elsif hit?(edge_square)
             return :hit
         end 
     end
+
+    def get_edge_direction edge_square
+        raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
+        positions = get_positions_from_square_numbers(edge_square)
+        row, column = positions.first
+        if(row == 0) 
+            return :down
+        elsif(row == @outer_dimension - 1) 
+            return :up
+        elsif(column == 0)
+            return :right
+        elsif(column == @outer_dimension - 1)
+            return :left
+        end
+        raise ArgumentError.new("Should never reach here")
+    end
+
+    def get_front_left_square(square, direction)
+        raise ArgumentError.new("#{square} is not a valid square") unless (edge_square?(square) || inner_square?(square))
+        positions = get_positions_from_square_numbers(square)
+        row, column = positions.first
+        case direction
+        when :up
+            if(row == 0 || column == 0)
+                return nil
+            end
+            return @square_numbers_from_positions[[row - 1, column - 1]]
+        when :down
+            if(row == @outer_dimension - 1 || column == @outer_dimension - 1)
+                return nil
+            end
+            return @square_numbers_from_positions[[row + 1, column+1]]
+        when :left
+            if(column == 0 || row == @outer_dimension - 1)
+                return nil
+            end
+            return @square_numbers_from_positions[[row + 1, column - 1]]
+            
+        when :right
+            if(column == @outer_dimension - 1 || row == 0)
+                return nil
+            end
+            return @square_numbers_from_positions[[row - 1, column + 1]]
+        else
+            raise RuntimeError("Should never land here!")
+        end
+    end
+
+    def get_front_right_square(square, direction)
+        raise ArgumentError.new("#{square} is not a valid square") unless (edge_square?(square) || inner_square?(square))
+        positions = get_positions_from_square_numbers(square)
+        row, column = positions.first
+        case direction
+        when :up
+            if(row == 0 || column == @outer_dimension - 1)
+                return nil
+            end
+            return @square_numbers_from_positions[[row - 1, column + 1]]
+        when :down
+            if(row == @outer_dimension - 1 || column == 0)
+                return nil
+            end
+            return @square_numbers_from_positions[[row + 1, column - 1]]
+        when :left
+            if(column == 0 || row == 0)
+                return nil
+            end
+            return @square_numbers_from_positions[[row - 1, column - 1]]
+            
+        when :right
+            if(column == @outer_dimension - 1 || row == @outer_dimension - 1)
+                return nil
+            end
+            return @square_numbers_from_positions[[row + 1, column + 1]]
+        else
+            raise RuntimeError("Should never land here!")
+        end
+    end
+
+    def reverse(direction)
+        case direction
+        when :up
+            return :down
+        when :down
+            return :up
+        when :left
+            return :right
+        when :right
+            return :left
+        else
+            raise ArgumentError.new("Invalid direction")
+        end
+    end
+
+    def turn_left(direction)
+        case direction
+        when :up
+            return :left
+        when :down
+            return :right
+        when :left
+            return :down
+        when :right
+            return :up
+        else
+            raise ArgumentError.new("Invalid direction")
+        end
+    end
+
+    def turn_right(direction)
+        case direction
+        when :up
+            return :right
+        when :down
+            return :left
+        when :left
+            return :up
+        when :right
+            return :down
+        else
+            raise ArgumentError.new("Invalid direction")
+        end
+    end    
+
+    def get_front_square(square, direction)
+        raise ArgumentError.new("#{square} is not a valid square") unless (edge_square?(square) || inner_square?(square))
+        positions = get_positions_from_square_numbers(square)
+        row, column = positions.first
+        case direction
+        when :up
+            if(row == 0)
+                raise ArgumentError("Attempting to move out of bounds in up direction")
+            else
+                return @square_numbers_from_positions[[row - 1, column]]
+            end
+        when :down
+            if(row == @outer_dimension - 1)
+                raise ArgumentError("Attempting to move out of bounds in down direction")
+            else
+                return @square_numbers_from_positions[[row + 1, column]]
+            end
+        when :left
+            if(column == 0)
+                raise ArgumentError("Attempting to move out of bounds in left direction")
+            else
+                return @square_numbers_from_positions[[row, column - 1]]
+            end
+        when :right
+            if(column == @outer_dimension - 1)
+                raise ArgumentError("Attempting to move out of bounds in right direction")
+            else
+                return @square_numbers_from_positions[[row, column + 1]]
+            end
+        else
+            raise RuntimeError("Should never land here!")
+        end
+    end
+
+    def step(start, current, direction)
+        raise ArgumentError.new("#{start} is not an edge square") unless edge_square?(start) 
+        raise ArgumentError.new("#{current} is not a valid square") unless (edge_square?(current) || inner_square?(current))
+        if(start == current && get_edge_direction(start) == reverse(direction))
+            return :reflection
+        end
+
+        front_square = get_front_square(current, direction)
+        if(edge_square?(front_square))
+            return [front_square, direction]
+        elsif(@atoms.include?(front_square))
+            return :hit
+        end
+
+        front_left_square = get_front_left_square(current, direction)
+        front_right_square = get_front_right_square(current, direction)
+        if(front_left_square && front_right_square)
+            front_left_atom = @atoms.include?(front_left_square) 
+            front_right_atom = @atoms.include?(front_right_square)
+            if front_left_atom && front_right_atom
+                return [current, reverse(direction)]
+            end
+            if(front_left_atom)
+                return [current, turn_right(direction)]
+            end
+            if(front_right_atom)
+                return [current, turn_left(direction)]
+            end
+            return [front_square, direction]
+        end
+        
+        if(front_left_square) # (and !front_right_square)
+            front_left_atom = @atoms.include?(front_left_square)
+            if(front_left_atom)
+                return [current, turn_right(direction)]
+            end
+            return [front_square, direction]
+        end
+
+        if(front_right_square) # (and !front_left_square)
+            front_right_atom = @atoms.include?(front_right_square)
+            if(front_right_atom)
+                return [current, turn_left(direction)]
+            end
+            return [front_square, direction]
+        end
+
+        return [front_square, direction]
+
+    end
+
+
+
+    def probe(start)
+        raise ArgumentError.new("#{start} is not an edge square") unless edge_square?(start)
+        direction = get_edge_direction(start)
+        current = start
+        next_step = step(start, current, direction)
+        if(!next_step.instance_of?(Array))
+            return next_step
+        else
+            current = next_step[0]
+            direction = next_step[1]
+            while(!edge_square?(current))
+                next_step = step(start, current, direction)
+                if(!next_step.instance_of?(Array))
+                    return next_step
+                else
+                    current = next_step[0]
+                    direction = next_step[1]
+                end    
+            end
+            if(current == start)
+                return :reflection
+            else
+                return current
+            end
+        end
+    end
+    
 
     def get_positions_from_square_numbers(square)
         @positions_from_square_numbers[square]

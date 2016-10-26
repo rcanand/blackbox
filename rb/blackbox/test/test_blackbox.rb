@@ -521,10 +521,16 @@ class TestBlackbox < Minitest::Test
 
     def test_hit_check
         bb = Blackbox.new(1,0)
+        assert_raises(ArgumentError){bb.hit?(-1)}
+        assert_raises(ArgumentError){bb.hit?(0)}
+
         refute(bb.hit?(1))
         refute(bb.hit?(2))
         refute(bb.hit?(3))
         refute(bb.hit?(4))
+
+        assert_raises(ArgumentError){bb.hit?(5)}
+        assert_raises(ArgumentError){bb.hit?(10)}
     end
 
     def test_check_pass_through_1_1
@@ -538,9 +544,23 @@ class TestBlackbox < Minitest::Test
     def test_probe_1_1
         # dim = 1, atoms = 1
         bb = Blackbox.new(1,1)
+
         assert_equal(:hit, bb.probe(1));
         assert_equal(:hit, bb.probe(2));
         assert_equal(:hit, bb.probe(3));
         assert_equal(:hit, bb.probe(4));        
+    end
+
+    def test_probe_2_1
+        bb = Blackbox.new(2,0)
+        bb.set_atoms(9)
+        assert_equal(:hit, bb.probe(1));
+        assert_equal(:reflection, bb.probe(2));
+        assert_equal(:hit, bb.probe(3));
+        assert_equal(5, bb.probe(4));
+        assert_equal(4, bb.probe(5));
+        assert_equal(:hit, bb.probe(6));
+        assert_equal(:reflection, bb.probe(7));
+        assert_equal(:hit, bb.probe(8));
     end
 end
