@@ -521,7 +521,6 @@ class TestBlackbox < Minitest::Test
     end
 
     def test_probe_1_1
-        skip
         # dim = 1, atoms = 1
         bb = Blackbox.new(1,1)
         assert_equal(:hit, bb.probe(1));
