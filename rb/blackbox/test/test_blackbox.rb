@@ -189,7 +189,7 @@ class TestBlackbox < Minitest::Test
         end
     end
 
-    def test_pick_guesses
+    def test_pick_atoms
         PARAMETERS.each do |dimension, num_atoms|
             bb = Blackbox.new(dimension,num_atoms)
             assert_equal(num_atoms, bb.atoms.count)
@@ -200,7 +200,7 @@ class TestBlackbox < Minitest::Test
         end
     end
 
-    def test_check_inner_square?
+    def test_check_inner_square
         PARAMETERS.each do |dimension, num_atoms|
             bb = Blackbox.new(dimension,num_atoms)
             10.times do 
@@ -214,7 +214,7 @@ class TestBlackbox < Minitest::Test
         end        
     end
 
-    def test_check_edge_square?
+    def test_check_edge_square
         PARAMETERS.each do |dimension, num_atoms|
             bb = Blackbox.new(dimension,num_atoms)
             10.times do 
@@ -385,23 +385,6 @@ class TestBlackbox < Minitest::Test
         end
     end
 
-    def test_check_pass_through_square_no_atoms
-        dims = [1,2,3,4,5,8,10,20,50]
-        dims.each do |dimension|
-            bb = Blackbox.new(dimension, 0)
-            assert_raises(ArgumentError){bb.pass_through?(-10)}
-            assert_raises(ArgumentError){bb.pass_through?(-1)}
-            assert_raises(ArgumentError){bb.pass_through?(0)}
-            assert_raises(ArgumentError){bb.pass_through?(bb.min_inner_square)}
-            assert_raises(ArgumentError){bb.pass_through?(bb.min_inner_square + 1)}
-            assert_raises(ArgumentError){bb.pass_through?(bb.min_inner_square + 10)}
-            
-            (1..(bb.min_inner_square - 1)).each do |square|
-                assert(bb.pass_through?(square))
-            end
-        end
-    end
-
     def test_probe_no_atoms
         dims = [1,2,3,4,5,8,10,20,50]
         dims.each do |dimension|
@@ -511,34 +494,6 @@ class TestBlackbox < Minitest::Test
         assert_includes(bb.atoms, 35)
         assert_includes(bb.atoms, 45)
         assert_includes(bb.atoms, 85)
-    end
-
-    def test_any_atom_between
-        bb = Blackbox.new(8,3)
-        assert_raises(ArgumentError) {bb.any_atom_between?(1,9)} 
-        assert_raises(ArgumentError) {bb.any_atom_between?(1,2)} 
-    end
-
-    def test_hit_check
-        bb = Blackbox.new(1,0)
-        assert_raises(ArgumentError){bb.hit?(-1)}
-        assert_raises(ArgumentError){bb.hit?(0)}
-
-        refute(bb.hit?(1))
-        refute(bb.hit?(2))
-        refute(bb.hit?(3))
-        refute(bb.hit?(4))
-
-        assert_raises(ArgumentError){bb.hit?(5)}
-        assert_raises(ArgumentError){bb.hit?(10)}
-    end
-
-    def test_check_pass_through_1_1
-        bb = Blackbox.new(1,1)
-        refute(bb.pass_through?(1))
-        refute(bb.pass_through?(2))
-        refute(bb.pass_through?(3))
-        refute(bb.pass_through?(4))
     end
 
     def test_probe_1_1
@@ -813,5 +768,17 @@ class TestBlackbox < Minitest::Test
         bb.toggle_guess(95)
         assert(bb.game_over?)
         bb.draw_move
+    end
+
+    def test_generate_solved_grids
+        1000.times do 
+            grid_size = rand(12) + 1
+            num_atoms = rand(grid_size) + 1
+            puts "#{grid_size}, #{num_atoms} game"
+            bb = Blackbox.new(grid_size, num_atoms)
+            (1..bb.min_inner_square - 1).each {|square|bb.probe(square)}
+            bb.atoms.each {|square|bb.toggle_guess(square)}
+            bb.draw_grid
+        end
     end
 end

@@ -20,7 +20,7 @@ class Blackbox
         @dimension = dimension
         @outer_dimension = dimension + 2
         @outer_grid_area = @outer_dimension * @outer_dimension
-        @min_inner_square = @dimension*4 +1
+        @min_inner_square = ((@dimension*4) + 1)
         @max_inner_square = @dimension*(4 + @dimension)
 
         @square_numbers_from_positions = {}
@@ -122,65 +122,6 @@ class Blackbox
 
         @toggle_guess_count += 1
     end   
-
-    def pass_through?(edge_square)
-        raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
-        if(@num_atoms == 0)
-            return true
-        end
-        false
-    end
-
-    def any_atom_between? square1, square2
-        raise ArgumentError.new("#{square1} is not a valid square") unless (square1 > 0 && square1 <= @max_inner_square)
-        raise ArgumentError.new("#{square2} is not a valid square") unless (square2 > 0 && square2 <= @max_inner_square)
-        return false if square1 == square2
-        return false if @atoms.empty?
-
-        positions1 = get_positions_from_square_numbers(square1)
-        row1, column1 = positions1.first 
-
-        positions2 = get_positions_from_square_numbers(square2)
-        row2, column2 = positions2.first 
-
-        if(row1 != row2 && column1 != column2)
-            raise ArgumentError.new("#{square1} and #{square2} are not in the same row or column") 
-        end
-
-        if((row1 == row2 && row1 == 0) ||
-            (row1 == row2 && row1 == @outer_dimension - 1) ||
-            (column1 == column2 && column1 == 0) ||
-            (column1 == column2 && column1 == @outer_dimension - 1)
-            )
-            raise ArgumentError.new("#{square1} and #{square2} are on the same edge")  
-        end
-
-        min_row = [row1, row2].min
-        max_row = [row1, row2].max
-        row_range = (min_row..max_row)
-        min_column = [column1, column2].min
-        max_column = [column1, column2].max
-        column_range = (min_column..max_column)
-
-        @atoms.each do |atom|
-            atom_positions = get_positions_from_square_numbers(atom)
-            atom_row, atom_column = atom_positions.first 
-            if(row_range.include?(atom_row) && column_range.include?(atom_column))
-                return true
-            end
-        end
-        return false
-    end
-
-    def hit?(edge_square)
-        raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)
-        if @atoms.empty?
-            return false
-        end
-
-        facing_edge_square = get_facing_edge_square(edge_square)
-        any_atom_between?(edge_square, facing_edge_square)
-    end
 
     def get_edge_direction edge_square
         raise ArgumentError.new("#{edge_square} is not an edge square") unless edge_square?(edge_square)

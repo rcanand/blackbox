@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby -wU
+require_relative "../lib/blackbox.rb"
+
+@board_size = 8
+@num_atoms = 3
+
+def main_menu
+    puts "Welcome to the vintage Blackbox game"
+    puts "See the rules at https://en.wikipedia.org/wiki/Black_Box_(game)"
+    
+    puts "This game is played on an #{@board_size} x #{@board_size} board with #{@num_atoms} hidden atoms"
+    puts "Pick a choice below:"
+    puts
+    puts "1. Change game board size"
+    puts "2. Change number of atoms"
+    puts "3. Start game"
+    puts
+    print "Enter your choice now (1-3): "
+end
+
+@choice = 0
+while(@choice != 3)
+    main_menu
+    @choice = gets.strip.to_i
+    if(@choice == 1)
+        puts "Enter a game board size: (1-50): "
+        user_board_size = gets.strip.to_i
+        while(!(1..50).include?(user_board_size))
+            print "Incorrect choice. Enter a game board size (1-50): "
+            user_board_size = gets.strip.to_i
+        end 
+        @board_size = user_board_size
+        @num_atoms = [@num_atoms, @board_size].min
+    elsif(@choice == 2)
+        print "Enter number of atoms (1-#{@board_size}): "
+        user_num_atoms = gets.strip.to_i
+        while(!(1..@board_size).include?(user_num_atoms))
+            print "Incorrect choice. Enter number of atoms: (1-#{@board_size}): "
+            user_num_atoms = gets.strip.to_i
+        end 
+        @num_atoms = user_num_atoms
+    end
+end
+
+@bb = Blackbox.new(@board_size, @num_atoms)
+
+while(!@bb.game_over?)
+    @bb.draw_move
+    puts "Vintage Blackbox Board Game"
+    puts "---------------------------"
+    puts "See the rules at https://en.wikipedia.org/wiki/Black_Box_(game)"
+    puts "Make your move." 
+    puts "Enter a number from the grid." 
+    puts "Entering an edge number will show what happens when you fire a beam from that spot."
+    puts "Entering an inner number will mark that square as a guess, or unmark it if already marked"
+    puts
+    print "Enter your number now: "
+    move = gets.strip.to_i
+    
+    while(!@bb.valid_move?(move))
+        print "Incorrect choice. Try again: "
+        move = gets.strip.to_i
+    end
+    if(@bb.edge_square?(move))
+        @bb.probe(move)
+    elsif(@bb.inner_square?(move))
+        @bb.toggle_guess(move)
+    else
+        puts "Invalid move. Try again."
+    end
+end
+@bb.draw_move
+
+
