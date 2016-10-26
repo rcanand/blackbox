@@ -714,7 +714,51 @@ class TestBlackbox < Minitest::Test
         bb.set_atoms(50, 55, 76, 95)
 
         (1..bb.min_inner_square - 1).each do |square|
-            assert_equal(bb.probe(square), bb.probe_map[square], "Mismatch for square #{square}")
+            assert_equal(bb.probe(square, false), bb.probe_map[square], "Mismatch for square #{square}")
         end    
+    end
+
+    def test_square_string_with_probes
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+        bb.probe(1)
+        assert_equal("1.31", bb.get_square_string(1))
+        assert_equal("31.1", bb.get_square_string(31))
+    end
+
+    def test_draw_grid_with_guesses_and_probes
+        bb = Blackbox.new(8,0)
+        bb.set_atoms(50, 55, 76, 95)
+        
+        puts
+        
+        puts "Drawing fresh grid"
+        bb.draw_grid
+        
+        puts "Probing 1"
+        bb.probe(1)
+        bb.draw_grid
+
+        puts "Probing 2"
+        bb.probe(2)
+        bb.draw_grid
+
+        puts "Probing 17"
+        bb.probe(17)
+        bb.draw_grid
+
+        puts "Probing 19"
+        bb.probe(19)
+        bb.draw_grid
+
+        puts "Guessing 33"
+        bb.toggle_guess(33)
+        bb.draw_grid
+        puts "Guessing 45"
+        bb.toggle_guess(45)
+        bb.draw_grid
+        puts "Unguessing 33"
+        bb.toggle_guess(33)
+        bb.draw_grid
     end
 end

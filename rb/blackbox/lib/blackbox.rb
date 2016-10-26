@@ -69,7 +69,14 @@ class Blackbox
 
     def get_square_string square
         if(@guesses.include?(square))
-            return "#{square}G"
+            return "(#{square}G)"
+        elsif(@probes.include?(square) || @probes.include?(@probe_map[square]))
+            pair_square = @probe_map[square]
+            if(pair_square.instance_of?(Fixnum))
+                return "(#{square}.#{@probe_map[square]})"
+            else
+                return "(#{square}.#{@probe_map[square].to_s[0].upcase})"
+            end    
         end
 
         return square.to_s
@@ -77,10 +84,11 @@ class Blackbox
 
     def draw_grid
         str = "\n\n"
-        max_column_width = @max_inner_square.to_s.length + 2
+        max_column_width = (2*@max_inner_square.to_s.length + 1) + 2
         @outer_dimension.times do |row|
             @outer_dimension.times do |column|
-                str += @square_numbers_from_positions[[row, column]].to_s.center(max_column_width)
+                square = @square_numbers_from_positions[[row, column]]
+                str += get_square_string(square).center(max_column_width)
             end
             str += "\n"
         end 
